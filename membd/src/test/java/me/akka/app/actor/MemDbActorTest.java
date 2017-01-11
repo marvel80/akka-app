@@ -16,9 +16,12 @@ public class MemDbActorTest {
 	public void testPutOperation(){
 		TestActorRef<MemDbActor> testActorRef = TestActorRef.create(system, Props.create(MemDbActor.class));
 		testActorRef.tell(new SetRequest("key", "value") , ActorRef.noSender());
+		testActorRef.tell(new SetRequest("key2", "value2") , ActorRef.noSender());
 		MemDbActor testActor = testActorRef.underlyingActor();
 		
+		Assert.assertEquals(testActor.getMap().size(), 2);
 		Assert.assertEquals(testActor.getMap().get("key"), "value");
+		Assert.assertEquals(testActor.getMap().get("key2"), "value2");
 	}
 
 }
