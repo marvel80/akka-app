@@ -39,5 +39,27 @@ public class MiActorTest {
 		
 		javaFuture.get(500, TimeUnit.MILLISECONDS);
 	}
+	
+	/**
+	 * a generic method to test actor behavior
+	 * 
+	 * @param movieName nameof movie to check
+	 * @return	
+	 */
+	public CompletionStage<Object> whichPerformer(String movieName){
+		Future<Object> scalaFuture = Patterns.ask(testActRef, movieName, 500);
+		final CompletionStage<Object> compStage = FutureConverters.toJava(scalaFuture);
+		return compStage;
+	}
+	
+	/**
+	 * this is a more asynchronous checker for actor where we block the thread by using Thread.sleep()
+	 * @throws InterruptedException
+	 */
+	@Test
+	public void logActor() throws InterruptedException{
+		whichPerformer("Mission Impossible").thenAccept(x -> System.out.println("incoming message is : " + x)).thenApply(y -> y.hashCode());
+		Thread.sleep(502);
+	}
 
 }
