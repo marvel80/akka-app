@@ -24,12 +24,6 @@ public class MemDbActorTest {
 	ActorSystem system = ActorSystem.create();
 	TestActorRef<MemDbActor> testActorRef = TestActorRef.create(system, Props.create(MemDbActor.class));
 	
-	//@Before
-	public void setup(){
-		testActorRef.tell(new DbPutMessage("key", "value") , ActorRef.noSender());
-		testActorRef.tell(new DbPutMessage("key2", "value2") , ActorRef.noSender());
-	}
-	
 	@Test
 	public void testPutOperation(){
 		log.info("Test Put operation");
@@ -43,7 +37,7 @@ public class MemDbActorTest {
 		Assert.assertEquals(testActor.getMap().get("key2"), "value2");
 	}
 	
-	@Test
+	//@Test
 	public void testGetOperation(){
 		log.info("Test Get operation");
 		testActorRef.tell(new DbPutMessage("key3", "value3") , ActorRef.noSender());
@@ -59,7 +53,7 @@ public class MemDbActorTest {
 		});		
 	}
 	
-	@Test
+	//@Test
 	public void testPutInvalidKeyFormat() {
 		log.info("Test GET with invalid key ");
 		whichOperation(new DbMessage() {
