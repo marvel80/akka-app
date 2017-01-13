@@ -1,13 +1,13 @@
 package me.akka.app;
 
-/**
- * Hello world!
- *
- */
-public class App 
-{
-    public static void main( String[] args )
-    {
-        System.out.println( "Hello World!" );
-    }
+import akka.actor.ActorSystem;
+import akka.actor.Props;
+import me.akka.app.actor.MemDbActor;
+
+public class App {
+	public static void main(String[] args) {
+		ActorSystem mainActorSys = ActorSystem.create("memDb");
+		mainActorSys.actorOf(Props.create(MemDbActor.class) , "memDbAct");
+		
+	}
 }
