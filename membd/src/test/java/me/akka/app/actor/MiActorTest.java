@@ -57,9 +57,62 @@ public class MiActorTest {
 	 * @throws InterruptedException
 	 */
 	@Test
-	public void logActor() throws InterruptedException{
-		whichPerformer("Mission Impossible").thenAccept(x -> System.out.println("incoming message is : " + x)).thenApply(y -> y.hashCode());
+	public void logActor1() throws InterruptedException{
+		System.out.println("\nlogActor-1 ");
+		whichPerformer("Mission Impossible").thenAccept(x -> System.out.println("incoming message is : " + x)) ; 
+		//.thenApply(y -> y.hashCode()).thenAccept(z -> System.out.println("hello" + z));
+		
 		Thread.sleep(502);
+	}
+	
+	@Test
+	public void logActor2() throws InterruptedException {
+		// thenCompose tranf'r
+		// demonstrates chained operation. since the second operation didn't get
+		// correct movie, it should log error
+		System.out.println("\nlogActor-2 ");
+		whichPerformer("Mission Impossible").thenCompose(y -> whichPerformer(String.valueOf(y)));
+	}
+	
+	@Test
+	public void logActor3() throws InterruptedException {
+		//handle error scenario. 
+		//TODO check for explicit handler in java8.
+		System.out.println("\nlogActor-3 ");
+		whichPerformer("bad movie").handle((x, t) -> {
+			if (t != null) {
+				System.out.println("error occured. encountered bad value." + "\n" + t);
+			}
+			return null;
+		});
+	}
+	
+	@Test
+	public void logActor4() throws InterruptedException {
+		//handle error 2nd way
+		System.out.println("\nlogActor-4 ");
+		whichPerformer("bad movie").exceptionally(t -> {
+			System.out.println("error handling 2");
+			return "default";
+		});
+	}
+	
+	/**
+	 * this is combination of logActor tests. all async functions are used, viz
+	 * thenCompose and handle
+	 */
+	@Test
+	public void chainedActorTest() {
+		System.out.println("\nBEGIN : chainedActorTest");
+
+		whichPerformer("Mission Impossible").thenCompose(x -> (whichPerformer("random"))).handle((x, ex) -> {
+			if (ex != null) {
+				System.out.println("eror hanling code is expected to trigger");
+				return "default";
+			}
+			return x;
+		});
+		System.out.println("END : chainedActorTest \n ");
 	}
 
 }
