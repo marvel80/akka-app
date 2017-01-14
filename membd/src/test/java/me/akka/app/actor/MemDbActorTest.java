@@ -37,7 +37,7 @@ public class MemDbActorTest {
 		Assert.assertEquals(testActor.getMap().get("key2"), "value2");
 	}
 	
-	//@Test
+	@Test
 	public void testGetOperation(){
 		log.info("Test Get operation");
 		testActorRef.tell(new DbPutMessage("key3", "value3") , ActorRef.noSender());
@@ -53,7 +53,7 @@ public class MemDbActorTest {
 		});		
 	}
 	
-	//@Test
+	@Test
 	public void testPutInvalidKeyFormat() {
 		log.info("Test GET with invalid key ");
 		whichOperation(new DbMessage() {
