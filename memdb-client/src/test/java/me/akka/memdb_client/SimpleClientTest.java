@@ -11,7 +11,7 @@ import org.junit.Test;
  */
 public class SimpleClientTest {
 
-	SimpleClient testClient = new SimpleClient("127.0.0.1:25522");
+	SimpleClient testClient = new SimpleClient();
 
 	@Test
 	public void testPositiveFlow() throws InterruptedException, ExecutionException {

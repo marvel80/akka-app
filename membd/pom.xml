@@ -4,7 +4,7 @@
 
 	<groupId>me.akka</groupId>
 	<artifactId>memdb</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>memdb</name>
@@ -55,4 +55,29 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	
+	<!-- exclude the conf directory from the build  -->
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-jar-plugin</artifactId>
+		        <version>2.3.1</version>
+		        <configuration>
+		          <excludes>
+		            <exclude>*.conf</exclude>
+		          </excludes>
+		        </configuration>
+			</plugin>
+		</plugins>
+		
+		<!-- <resources>
+			<resource>
+				<directory>src/main/resources</directory>
+					<excludes>
+						<exclude>*.conf</exclude>
+					</excludes>
+			</resource>
+		</resources> -->
+	</build>
 </project>

@@ -13,9 +13,11 @@ public class SimpleClient {
 	private final ActorSystem dbActorSys;
 	private final ActorSelection db;
 	
-	public SimpleClient(String addressString){
+	public SimpleClient(){
 		dbActorSys = ActorSystem.create("testerSystem");
-		db = dbActorSys.actorSelection("akka://memDb@127.0.0.1:25520");
+		
+		//pattern -> "akka://actorSystemName@host:port/user/actorName"
+		db = dbActorSys.actorSelection("akka://memDb@127.0.0.1:25520/user/memDbAct");
 	}
 	
 	public CompletionStage<Object> put(String key , String value){
