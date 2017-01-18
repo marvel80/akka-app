@@ -20,7 +20,7 @@
    <dependency>
       <groupId>me.akka</groupId>
       <artifactId>memdb</artifactId>
-      <version>0.0.2-SNAPSHOT</version>
+      <version>0.0.3</version>
     </dependency>
     <!-- <dependency>
       <groupId>me.akka</groupId>
