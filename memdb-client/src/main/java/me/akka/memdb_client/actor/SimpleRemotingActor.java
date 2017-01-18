@@ -45,6 +45,7 @@ public class SimpleRemotingActor extends UntypedActor {
 			} else {
 				getContext().watch(memDb);
 				getContext().become(operate, true);
+				log.info("watching memDb from remoting client actor");
 			}
 		} else if (incomingMessage instanceof ReceiveTimeout) {
 			identify();
@@ -62,6 +63,8 @@ public class SimpleRemotingActor extends UntypedActor {
 			
 			if (dbOperationMessage instanceof DbGetMessage || dbOperationMessage instanceof DbPutMessage) {
 				memDb.tell(dbOperationMessage, self());
+			} else if (dbOperationMessage instanceof ActorIdentity) {
+				log.info("Actor identity message recieved" , ((ActorIdentity)dbOperationMessage).getRef().toString());
 			} else if (dbOperationMessage instanceof ReceiveTimeout) {
 				identify();
 			} else if (dbOperationMessage instanceof IllegalArgumentException) {
