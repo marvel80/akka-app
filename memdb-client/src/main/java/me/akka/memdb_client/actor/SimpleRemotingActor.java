@@ -30,7 +30,7 @@ public class SimpleRemotingActor extends UntypedActor {
 
 	private void identify() {
 		getContext().actorSelection(path).tell(new Identify(path), self());
-		getContext().system().scheduler().scheduleOnce(Duration.create(3, TimeUnit.SECONDS), getSelf(),
+		getContext().system().scheduler().scheduleOnce(Duration.create(30, TimeUnit.SECONDS), getSelf(),
 				ReceiveTimeout.getInstance(), getContext().dispatcher(), getSelf());
 	}
 
