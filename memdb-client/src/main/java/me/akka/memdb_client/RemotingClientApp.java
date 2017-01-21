@@ -9,8 +9,11 @@ import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.ConfigFactory;
 
+import akka.actor.ActorContext;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.actor.Kill;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.pattern.Patterns;
 import me.akka.app.message.DbGetMessage;
@@ -42,6 +45,11 @@ public class RemotingClientApp {
 		log.info("return _value={}" , returnValue);*/
 		
 		clientActor.tell(new DbGetMessage("key"), clientActor);
+		clientActor.tell(new DbGetMessage("key1"), clientActor);
+		
+		clientActor.tell(new DbPutMessage("key2", "value2"), clientActor);
+		
+		// clientActor.tell(Kill.getInstance(), clientActor.noSender());
 	}
 
 }
