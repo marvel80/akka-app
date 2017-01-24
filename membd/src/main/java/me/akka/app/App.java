@@ -29,9 +29,9 @@ public class App {
 		// default config file is application.conf . thats why .load() works
 		// without argument / location of conf file.
 		Config portConfig = ConfigFactory.parseString("akka.remote.artery.canonical.port=" + port)
-				.withFallback(ConfigFactory.load());
+				.withFallback(ConfigFactory.load("clustering"));
 
-		ActorSystem mainActorSys = ActorSystem.create("memDb", portConfig);
+		ActorSystem mainActorSys = ActorSystem.create("memDb" , portConfig);
 		mainActorSys.actorOf(Props.create(MemDbActor.class), "memDbAct");		
 	}
 }

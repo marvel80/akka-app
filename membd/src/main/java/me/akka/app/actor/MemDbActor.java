@@ -6,21 +6,30 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import akka.actor.AbstractActor;
 import akka.actor.Status;
+import akka.actor.UntypedActor;
 import akka.japi.pf.ReceiveBuilder;
 import me.akka.app.exception.MissingKeyException;
 import me.akka.app.message.DbGetMessage;
 import me.akka.app.message.DbOperationResultMessage;
 import me.akka.app.message.DbPutMessage;
 
-public class MemDbActor extends AbstractActor {
+public class MemDbActor extends UntypedActor {
 	private static final Logger log = LoggerFactory.getLogger(MemDbActor.class);
 	private final Map<String, String> map;
 
-	private MemDbActor() {
+	
+	public MemDbActor() {
 		map = new HashMap<>();
-		receive(ReceiveBuilder.match(DbPutMessage.class, putMessage -> {
+	}
+
+	public Map<String, String> getMap() {
+		return map;
+	}
+
+	@Override
+	public void onReceive(Object arg0) throws Throwable {
+		ReceiveBuilder.match(DbPutMessage.class, putMessage -> {
 			log.info("_message=\"Recieved PUT msg\". key={} value={}", putMessage.getKey(),
 					putMessage.getValue());
 			map.put(putMessage.getKey(), putMessage.getValue());
@@ -33,11 +42,8 @@ public class MemDbActor extends AbstractActor {
 		}).matchAny(o -> {
 			log.info("recieved msg unkown", o);
 			sender().tell(new Status.Failure(new IllegalArgumentException("bad message")), self());
-		}).build());
-	}
-
-	public Map<String, String> getMap() {
-		return map;
+		}).build();
+		
 	}
 
 }
