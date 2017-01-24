@@ -16,6 +16,7 @@ import akka.actor.Kill;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.pattern.Patterns;
+import akka.routing.RoundRobinPool;
 import me.akka.app.message.DbGetMessage;
 import me.akka.app.message.DbPutMessage;
 import me.akka.memdb_client.actor.SimpleRemotingActor;
@@ -31,7 +32,7 @@ public class RemotingClientApp {
 
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		remoteSystem = ActorSystem.create("remotingClient", ConfigFactory.load("client"));
-		clientActor = remoteSystem.actorOf(Props.create(SimpleRemotingActor.class, REMOTE_DB_ACTOR_PATH), "client");
+		clientActor = remoteSystem.actorOf(Props.create(SimpleRemotingActor.class, REMOTE_DB_ACTOR_PATH).withRouter(new RoundRobinPool(2)), "client");
 
 		// put operation
 		clientActor.tell(new DbPutMessage("key", "value"), clientActor);
