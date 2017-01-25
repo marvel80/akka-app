@@ -50,7 +50,7 @@ public class MemDbActor extends AbstractActor {
 			sender().tell(val == null ? new Status.Failure(new MissingKeyException(getMessage.getKey()))
 					: new DbOperationResultMessage(getMessage.getKey(), val), self());
 		}).match(MemberUp.class, z -> {
-			log.info("member joined and is UP. member={}" , ((MemberUp)z).member());
+			log.info("member joined and is UP. member={}" , z.member());
 		}).matchAny(o -> {
 			log.info("recieved msg unkown. classname={}", o.getClass().getName());
 			sender().tell(new Status.Failure(new IllegalArgumentException("bad message")), self());
