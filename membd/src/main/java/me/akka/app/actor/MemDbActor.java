@@ -54,6 +54,7 @@ public class MemDbActor extends AbstractActor {
 		}).matchAny(o -> {
 			log.info("recieved msg unkown. classname={}", o.getClass().getName());
 			sender().tell(new Status.Failure(new IllegalArgumentException("bad message")), self());
+			unhandled(o);
 		}).build());
 	}
 
