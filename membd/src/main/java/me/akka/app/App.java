@@ -11,18 +11,11 @@ public class App {
 	public static void main(String[] args) throws InterruptedException {
 		// get the default ports for initial cluster
 		// as defined in application.conf , 2551 and 2552 are the seed nodes.
-		String[] startupNodes = { "2551", "2552", "25520" };
+		String[] startupNodes = args ;
 
 		for (String port : startupNodes) {
 			startUpActorSystem(port);
 		}
-		
-		// sleep for 10 sec
-		Thread.sleep(10000L);
-		
-		//start a new node and monitor the joining of cluster
-		startUpActorSystem("2553");
-		
 	}
 	
 	private static void startUpActorSystem(String port){
