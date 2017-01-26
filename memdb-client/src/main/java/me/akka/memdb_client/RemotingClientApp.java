@@ -26,7 +26,7 @@ public class RemotingClientApp {
 
 	private static ActorSystem remoteSystem;
 	private static ActorRef clientActor;
-	private static final String REMOTE_DB_ACTOR_PATH = "akka://memDb@127.0.0.1:25520/user/memDbAct";
+	private static final String REMOTE_DB_ACTOR_PATH = "akka://memDb@127.0.0.1:25520/user/reqHandler";
 	
 	private static final Logger log = LoggerFactory.getLogger(RemotingClientApp.class); 
 

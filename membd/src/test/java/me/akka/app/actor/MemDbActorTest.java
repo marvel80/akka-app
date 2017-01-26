@@ -57,6 +57,11 @@ public class MemDbActorTest {
 	public void testPutInvalidKeyFormat() {
 		log.info("Test GET with invalid key ");
 		whichOperation(new DbMessage() {
+
+			@Override
+			public String getKey() {
+				return "NEW_KEY";
+			}
 		}).handle((x, ex) -> {
 			if (ex != null) {
 				// Assert.assertNotNull(ex);

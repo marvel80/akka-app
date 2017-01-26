@@ -18,6 +18,7 @@ public class DbGetMessage implements Serializable, DbMessage {
 		this.key = k;
 	}
 
+	@Override
 	public String getKey() {
 		return key;
 	}
