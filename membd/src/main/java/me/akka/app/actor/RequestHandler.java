@@ -23,6 +23,7 @@ public class RequestHandler extends AbstractActor {
 		receive(ReceiveBuilder.match(DbGetMessage.class, o -> handleDbMessage(o))
 				.match(DbPutMessage.class, put -> handleDbMessage(put))
 				.match(DbWorkerJoin.class, x -> {
+					log.info("worker sent a joining request. actorPath={}" , sender().path());
 					getContext().watch(sender());
 					workerNodes.add(sender());
 					})

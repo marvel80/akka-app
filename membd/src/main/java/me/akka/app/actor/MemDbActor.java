@@ -61,6 +61,9 @@ public class MemDbActor extends AbstractActor {
 					registerWorkerToRequestHandler(member);
 				}
 			}
+		}).match(MemberUp.class, ap -> {
+			log.info("member up..checking if it is worker node...");
+			registerWorkerToRequestHandler(ap.member());
 		}).matchAny(o -> {
 			log.info("recieved msg unkown. classname={}", o.getClass().getName());
 			sender().tell(new Status.Failure(new IllegalArgumentException("bad message")), self());
@@ -69,8 +72,11 @@ public class MemDbActor extends AbstractActor {
 	}
 
 	private void registerWorkerToRequestHandler(Member member) {
+		log.info("entering registerWorkerToRequestHandler method by member={}" , member.address() );
+		
 		if(member.hasRole("reqHandler")){
-			getContext().actorSelection(member.address() + ":2553" + "/user/reqHandler").tell(new DbWorkerJoin(), self());	
+			log.info("sending request to hadler to join. meberAddress={}" , member.address() );
+			getContext().actorSelection(member.address()  + "/user/reqHandler").tell(new DbWorkerJoin(), self());	
 		}
 	}
 	
