@@ -12,6 +12,7 @@ import akka.cluster.Cluster;
 import akka.cluster.ClusterEvent;
 import akka.cluster.ClusterEvent.CurrentClusterState;
 import akka.cluster.ClusterEvent.MemberEvent;
+import akka.cluster.ClusterEvent.MemberUp;
 import akka.cluster.ClusterEvent.UnreachableMember;
 import akka.cluster.Member;
 import akka.cluster.protobuf.msg.ClusterMessages.MemberStatus;
@@ -31,7 +32,7 @@ public class MemDbActor extends AbstractActor {
 	@Override
 	public void preStart() {
 		log.info("subscribing to cluster events");
-		clusterInfo.subscribe(self(), ClusterEvent.initialStateAsEvents(), MemberEvent.class, UnreachableMember.class);
+		clusterInfo.subscribe(self(), ClusterEvent.initialStateAsEvents(), MemberEvent.class, UnreachableMember.class, MemberUp.class);
 	}
 	
 	@Override
@@ -69,7 +70,7 @@ public class MemDbActor extends AbstractActor {
 
 	private void registerWorkerToRequestHandler(Member member) {
 		if(member.hasRole("reqHandler")){
-			getContext().actorSelection(member.address() + "/user/memDb").tell(new DbWorkerJoin(), self());	
+			getContext().actorSelection(member.address() + ":2553" + "/user/reqHandler").tell(new DbWorkerJoin(), self());	
 		}
 	}
 	

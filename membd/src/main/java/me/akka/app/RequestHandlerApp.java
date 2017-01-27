@@ -5,7 +5,7 @@ import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import me.akka.app.actor.MemDbActor;
+import me.akka.app.actor.RequestHandler;
 
 public class RequestHandlerApp {
 	public static void main(String[] args) throws InterruptedException {
@@ -26,7 +26,7 @@ public class RequestHandlerApp {
 				.withFallback(ConfigFactory.load("clustering"));
 
 		ActorSystem mainActorSys = ActorSystem.create("memDb" , portConfig);
-		mainActorSys.actorOf(Props.create(MemDbActor.class), "reqHandler");		
+		mainActorSys.actorOf(Props.create(RequestHandler.class), "reqHandler");		
 		
 		
 	}

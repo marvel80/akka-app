@@ -26,12 +26,12 @@ public class RemotingClientApp {
 
 	private static ActorSystem remoteSystem;
 	private static ActorRef clientActor;
-	private static final String REMOTE_DB_ACTOR_PATH = "akka://memDb@127.0.0.1:25520/user/reqHandler";
+	private static final String REMOTE_DB_ACTOR_PATH = "akka://memDb@127.0.0.1:2553/user/reqHandler";
 	
 	private static final Logger log = LoggerFactory.getLogger(RemotingClientApp.class); 
 
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
-		remoteSystem = ActorSystem.create("remotingClient", ConfigFactory.load("client"));
+		remoteSystem = ActorSystem.create("memDb", ConfigFactory.load("client"));
 		clientActor = remoteSystem.actorOf(Props.create(SimpleRemotingActor.class, REMOTE_DB_ACTOR_PATH).withRouter(new RoundRobinPool(2)), "client");
 
 		// put operation
