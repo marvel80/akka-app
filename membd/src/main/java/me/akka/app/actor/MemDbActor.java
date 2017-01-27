@@ -10,14 +10,18 @@ import akka.actor.AbstractActor;
 import akka.actor.Status;
 import akka.cluster.Cluster;
 import akka.cluster.ClusterEvent;
+import akka.cluster.ClusterEvent.CurrentClusterState;
 import akka.cluster.ClusterEvent.MemberEvent;
 import akka.cluster.ClusterEvent.MemberUp;
 import akka.cluster.ClusterEvent.UnreachableMember;
+import akka.cluster.Member;
+import akka.cluster.protobuf.msg.ClusterMessages.MemberStatus;
 import akka.japi.pf.ReceiveBuilder;
 import me.akka.app.exception.MissingKeyException;
 import me.akka.app.message.DbGetMessage;
 import me.akka.app.message.DbOperationResultMessage;
 import me.akka.app.message.DbPutMessage;
+import me.akka.app.message.DbWorkerJoin;
 
 public class MemDbActor extends AbstractActor {
 	private static final Logger log = LoggerFactory.getLogger(MemDbActor.class);
@@ -28,7 +32,7 @@ public class MemDbActor extends AbstractActor {
 	@Override
 	public void preStart() {
 		log.info("subscribing to cluster events");
-		clusterInfo.subscribe(self(), ClusterEvent.initialStateAsEvents(), MemberEvent.class, UnreachableMember.class);
+		clusterInfo.subscribe(self(), ClusterEvent.initialStateAsEvents(), MemberEvent.class, UnreachableMember.class, MemberUp.class);
 	}
 	
 	@Override
@@ -49,8 +53,17 @@ public class MemDbActor extends AbstractActor {
 			String val = map.get(getMessage.getKey());
 			sender().tell(val == null ? new Status.Failure(new MissingKeyException(getMessage.getKey()))
 					: new DbOperationResultMessage(getMessage.getKey(), val), self());
-		}).match(MemberUp.class, z -> {
-			log.info("member joined and is UP. member={}" , z.member());
+		}).match(CurrentClusterState.class, z -> {
+			CurrentClusterState state = (CurrentClusterState) z;
+			for (Member member : state.getMembers()) {
+				if (member.status().equals(MemberStatus.Up)) {
+					// register with the request handler.
+					registerWorkerToRequestHandler(member);
+				}
+			}
+		}).match(MemberUp.class, ap -> {
+			log.info("member up..checking if it is worker node...");
+			registerWorkerToRequestHandler(ap.member());
 		}).matchAny(o -> {
 			log.info("recieved msg unkown. classname={}", o.getClass().getName());
 			sender().tell(new Status.Failure(new IllegalArgumentException("bad message")), self());
@@ -58,6 +71,15 @@ public class MemDbActor extends AbstractActor {
 		}).build());
 	}
 
+	private void registerWorkerToRequestHandler(Member member) {
+		log.info("entering registerWorkerToRequestHandler method by member={}" , member.address() );
+		
+		if(member.hasRole("reqHandler")){
+			log.info("sending request to hadler to join. meberAddress={}" , member.address() );
+			getContext().actorSelection(member.address()  + "/user/reqHandler").tell(new DbWorkerJoin(), self());	
+		}
+	}
+	
 	public Map<String, String> getMap() {
 		return map;
 	}
