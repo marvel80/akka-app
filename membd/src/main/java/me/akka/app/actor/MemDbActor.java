@@ -10,12 +10,10 @@ import akka.actor.AbstractActor;
 import akka.actor.Status;
 import akka.cluster.Cluster;
 import akka.cluster.ClusterEvent;
-import akka.cluster.ClusterEvent.CurrentClusterState;
 import akka.cluster.ClusterEvent.MemberEvent;
 import akka.cluster.ClusterEvent.MemberUp;
 import akka.cluster.ClusterEvent.UnreachableMember;
 import akka.cluster.Member;
-import akka.cluster.protobuf.msg.ClusterMessages.MemberStatus;
 import akka.japi.pf.ReceiveBuilder;
 import me.akka.app.exception.MissingKeyException;
 import me.akka.app.message.DbGetMessage;
@@ -53,16 +51,8 @@ public class MemDbActor extends AbstractActor {
 			String val = map.get(getMessage.getKey());
 			sender().tell(val == null ? new Status.Failure(new MissingKeyException(getMessage.getKey()))
 					: new DbOperationResultMessage(getMessage.getKey(), val), self());
-		}).match(CurrentClusterState.class, z -> {
-			CurrentClusterState state = (CurrentClusterState) z;
-			for (Member member : state.getMembers()) {
-				if (member.status().equals(MemberStatus.Up)) {
-					// register with the request handler.
-					registerWorkerToRequestHandler(member);
-				}
-			}
 		}).match(MemberUp.class, ap -> {
-			log.info("member up..checking if it is worker node...");
+			log.info("member up..checking if it is handler node...");
 			registerWorkerToRequestHandler(ap.member());
 		}).matchAny(o -> {
 			log.info("recieved msg unkown. classname={}", o.getClass().getName());
@@ -72,10 +62,10 @@ public class MemDbActor extends AbstractActor {
 	}
 
 	private void registerWorkerToRequestHandler(Member member) {
-		log.info("entering registerWorkerToRequestHandler method by member={}" , member.address() );
+		log.info("entering registerWorkerToRequestHandler method for member={}" , member.address() );
 		
 		if(member.hasRole("reqHandler")){
-			log.info("sending request to hadler to join. meberAddress={}" , member.address() );
+			log.info("sending request to hadler node to join. selfAddress={} masterAddress={}" , self().path().address() ,  member.address() );
 			getContext().actorSelection(member.address()  + "/user/reqHandler").tell(new DbWorkerJoin(), self());	
 		}
 	}
