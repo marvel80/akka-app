@@ -19,6 +19,7 @@ import akka.pattern.Patterns;
 import akka.routing.RoundRobinPool;
 import me.akka.app.message.DbGetMessage;
 import me.akka.app.message.DbPutMessage;
+import me.akka.memdb_client.actor.PublisherActor;
 import me.akka.memdb_client.actor.SimpleRemotingActor;
 import scala.compat.java8.FutureConverters;
 
@@ -32,8 +33,10 @@ public class RemotingClientApp {
 
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		remoteSystem = ActorSystem.create("memDb", ConfigFactory.load("client"));
-		clientActor = remoteSystem.actorOf(Props.create(SimpleRemotingActor.class, REMOTE_DB_ACTOR_PATH).withRouter(new RoundRobinPool(2)), "client");
-
+		clientActor = remoteSystem.actorOf(Props.create(SimpleRemotingActor.class, 
+				REMOTE_DB_ACTOR_PATH).withRouter(new RoundRobinPool(2)), "client");
+		//clientActor = remoteSystem.actorOf(Props.create(PublisherActor.class), "clientDistributed");
+		
 		// put operation
 		clientActor.tell(new DbPutMessage("key", "value"), clientActor);
 

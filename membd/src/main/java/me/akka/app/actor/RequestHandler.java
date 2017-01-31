@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.cluster.pubsub.DistributedPubSub;
+import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.japi.pf.ReceiveBuilder;
 import me.akka.app.exception.WorkerUnavailableException;
 import me.akka.app.message.DbGetMessage;
@@ -18,8 +20,14 @@ import me.akka.app.message.DbWorkerJoin;
 public class RequestHandler extends AbstractActor {
 	List<ActorRef> workerNodes = new ArrayList<>();
 	private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
+	private static boolean isSubscribed = false; 
 
 	private RequestHandler() {
+		if(!isSubscribed){
+			subscribeToPubSubMediator();	
+			isSubscribed = true;
+		}
+		
 		receive(ReceiveBuilder.match(DbGetMessage.class, o -> handleDbMessage(o))
 				.match(DbPutMessage.class, put -> handleDbMessage(put))
 				.match(DbWorkerJoin.class, x -> {
@@ -27,6 +35,8 @@ public class RequestHandler extends AbstractActor {
 					getContext().watch(sender());
 					workerNodes.add(sender());
 					})
+				.match(DistributedPubSubMediator.SubscribeAck.class, 
+						ack -> log.info("Subscribe Acknowledged for memberPath={}" , self().path()))
 				.matchAny(m -> unhandled(m)	)
 				.build());
 	}
@@ -41,6 +51,11 @@ public class RequestHandler extends AbstractActor {
 			ActorRef worker = workerNodes.get(msg.getKey().hashCode() % workerNodes.size());
 			worker.forward(msg, getContext());
 		}
+	}
+	
+	private void subscribeToPubSubMediator(){
+		ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
+		mediator.tell(new DistributedPubSubMediator.Subscribe("dbRequests", self()), self());
 	}
 
 }

@@ -5,6 +5,7 @@ import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorSystem;
 import akka.actor.Props;
+import akka.routing.RoundRobinPool;
 import me.akka.app.actor.RequestHandler;
 
 public class RequestHandlerApp {
@@ -26,7 +27,7 @@ public class RequestHandlerApp {
 				.withFallback(ConfigFactory.load("clustering"));
 
 		ActorSystem mainActorSys = ActorSystem.create("memDb" , portConfig);
-		mainActorSys.actorOf(Props.create(RequestHandler.class), "reqHandler");		
+		mainActorSys.actorOf(Props.create(RequestHandler.class).withRouter(new RoundRobinPool(1)), "reqHandler");		
 		
 		
 	}
