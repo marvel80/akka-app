@@ -15,6 +15,7 @@ import akka.actor.UntypedActor;
 import akka.japi.Procedure;
 import akka.japi.pf.DeciderBuilder;
 import me.akka.app.message.DbGetMessage;
+import me.akka.app.message.DbOperationResultMessage;
 import me.akka.app.message.DbPutMessage;
 import scala.concurrent.duration.Duration;
 
@@ -70,11 +71,14 @@ public class SimpleRemotingActor extends UntypedActor {
 		@Override
 		public void apply(Object dbOperationMessage) throws Exception {
 			log.info("Entering operate. applyMessage={}", dbOperationMessage.getClass().getName());
-			
+
 			if (dbOperationMessage instanceof DbGetMessage || dbOperationMessage instanceof DbPutMessage) {
 				memDb.tell(dbOperationMessage, self());
 			} else if (dbOperationMessage instanceof ActorIdentity) {
-				log.info("Actor identity message recieved" , ((ActorIdentity)dbOperationMessage).getRef().toString());
+				log.info("Actor identity message recieved", ((ActorIdentity) dbOperationMessage).getRef().toString());
+			} else if (dbOperationMessage instanceof DbOperationResultMessage) {
+				log.info("opertion result. key={} value={}", ((DbOperationResultMessage) dbOperationMessage).getKey(),
+						((DbOperationResultMessage) dbOperationMessage).getValue());
 			} else if (dbOperationMessage instanceof ReceiveTimeout) {
 				identify();
 			} else if (dbOperationMessage instanceof IllegalArgumentException) {
