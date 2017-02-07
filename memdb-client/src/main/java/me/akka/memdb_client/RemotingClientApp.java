@@ -32,13 +32,16 @@ public class RemotingClientApp {
 
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		remoteSystem = ActorSystem.create("memDb", ConfigFactory.load("client"));
-		clientActor = remoteSystem.actorOf(Props.create(SimpleRemotingActor.class, REMOTE_DB_ACTOR_PATH).withRouter(new RoundRobinPool(2)), "client");
 
+		clientActor = remoteSystem.actorOf(Props.create(SimpleRemotingActor.class, 
+				REMOTE_DB_ACTOR_PATH).withRouter(new RoundRobinPool(1)), "client");
+		//clientActor = remoteSystem.actorOf(Props.create(PublisherActor.class), "clientDistributed");
+		
 		// put operation
 		clientActor.tell(new DbPutMessage("key", "value"), clientActor);
 
-		/*// get operation
-		CompletionStage<Object> valueFuture = FutureConverters
+		// get operation
+		/*CompletionStage<Object> valueFuture = FutureConverters
 				.toJava(Patterns.ask(clientActor, new DbGetMessage("key"), 13000));
 		String returnValue = String.valueOf(((CompletableFuture<Object>) valueFuture).get());
 
